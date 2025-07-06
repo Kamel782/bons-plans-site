@@ -1,0 +1,83 @@
+{{ define "main" }}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-content">
+    <h1>🔥 Flash Deals Pro</h1>
+    <p class="hero-subtitle">Les meilleures offres et codes promo du web</p>
+    <p class="hero-description">Économisez jusqu'à <strong>70%</strong> sur vos achats avec nos deals vérifiés quotidiennement</p>
+    
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-number">500+</span>
+        <span class="stat-label">Offres actives</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">10K+</span>
+        <span class="stat-label">Utilisateurs</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">2M€+</span>
+        <span class="stat-label">Économisés</span>
+      </div>
+    </div>
+
+    <div class="hero-buttons">
+      <a href="/deals/" class="btn-primary">🛍️ Voir tous les deals</a>
+      <a href="/categories/" class="btn-secondary">📂 Parcourir par catégorie</a>
+    </div>
+  </div>
+</section>
+
+<!-- Deals en vedette -->
+<section class="featured-deals">
+  <h2>⭐ Deals en vedette aujourd'hui</h2>
+  <div class="deals-grid">
+    {{ range first 6 (where .Site.RegularPages "Section" "deals") }}
+      {{ .Render "summary" }}
+    {{ end }}
+  </div>
+  <div class="view-all">
+    <a href="/deals/" class="btn-outline">Voir tous les deals →</a>
+  </div>
+</section>
+
+<!-- Catégories populaires -->
+<section class="popular-categories">
+  <h2>🏷️ Catégories populaires</h2>
+  <div class="categories-grid">
+    <a href="/categories/high-tech/" class="category-card">
+      <div class="category-icon">💻</div>
+      <h3>High-Tech</h3>
+      <p>Smartphones, ordinateurs, gadgets</p>
+    </a>
+    <a href="/categories/mode/" class="category-card">
+      <div class="category-icon">👕</div>
+      <h3>Mode</h3>
+      <p>Vêtements, chaussures, accessoires</p>
+    </a>
+    <a href="/categories/maison/" class="category-card">
+      <div class="category-icon">🏠</div>
+      <h3>Maison</h3>
+      <p>Décoration, électroménager, jardin</p>
+    </a>
+    <a href="/categories/voyage/" class="category-card">
+      <div class="category-icon">✈️</div>
+      <h3>Voyage</h3>
+      <p>Hôtels, vols, locations</p>
+    </a>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter-section">
+  <div class="newsletter-content">
+    <h2>🔔 Ne ratez aucune offre !</h2>
+    <p>Recevez les meilleures promotions directement dans votre boîte mail</p>
+    <form class="newsletter-form">
+      <input type="email" placeholder="Votre adresse email" required>
+      <button type="submit">S'abonner</button>
+    </form>
+    <p class="newsletter-note">✅ Gratuit • 📧 1 email/jour • 🚫 Pas de spam</p>
+  </div>
+</section>
+{{ end }}

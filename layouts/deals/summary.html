@@ -1,0 +1,37 @@
+<article class="deal-card">
+  <div class="deal-header">
+    {{ if .Params.discount }}
+      <span class="discount-badge">-{{ .Params.discount }}%</span>
+    {{ end }}
+    {{ if le (time .Params.expiryDate).Unix now.Unix }}
+      <span class="expired-badge">Expiré</span>
+    {{ else if .Params.daysValid }}
+      <span class="days-left">{{ .Params.daysValid }} jours</span>
+    {{ end }}
+  </div>
+  
+  <div class="deal-content">
+    <h3 class="deal-title">
+      <a href="{{ .Permalink }}">{{ .Title | safeHTML }}</a>
+    </h3>
+    
+    <div class="deal-meta">
+      {{ range .Params.stores }}
+        <span class="store-tag">{{ . }}</span>
+      {{ end }}
+    </div>
+    
+    <div class="deal-prices">
+      {{ if .Params.oldPrice }}
+        <span class="old-price">{{ .Params.oldPrice }}€</span>
+      {{ end }}
+      <span class="new-price">{{ .Params.newPrice }}€</span>
+    </div>
+    
+    <div class="deal-summary">
+      {{ .Summary | truncate 100 "..." }}
+    </div>
+    
+    <a href="{{ .Permalink }}" class="deal-button">Voir le deal →</a>
+  </div>
+</article>

@@ -3,9 +3,10 @@ title = "Flash Deals Pro"
 theme = "PaperMod"
 defaultContentLanguage = "fr"
 enableRobotsTXT = true
+enableEmoji = true
 
 [pagination]
-pagerSize = 10
+pagerSize = 12
 
 [params]
 defaultTheme = "light"
@@ -15,40 +16,29 @@ ShowShareButtons = true
 ShowPostNavLinks = true
 ShowBreadCrumbs = true
 ShowCodeCopyButtons = true
-ShowToc = true
+ShowToc = false
+ShowFullTextinRSS = false
 images = ["images/logo.png"]
 
 description = "Les meilleures offres et codes promo du web"
-keywords = ["bons plans", "codes promo", "réductions", "deals"]
+keywords = ["bons plans", "codes promo", "reductions", "deals"]
 author = "Flash Deals Pro"
 
 [params.profileMode]
-enabled = true
-title = "Flash Deals Pro 🔥"
-subtitle = "Les meilleures offres et codes promo du web, actualisées quotidiennement"
-imageUrl = ""
-imageTitle = ""
-
-[[params.profileMode.buttons]]
-name = "🛍️ Voir les Deals"
-url = "/deals/"
-
-[[params.profileMode.buttons]]
-name = "💻 High-Tech"
-url = "/categories/high-tech/"
+enabled = false
 
 [[menu.main]]
-name = "Deals"
+name = "🛍️ Deals"
 url = "/deals/"
 weight = 1
 
 [[menu.main]]
-name = "Catégories"
+name = "📂 Catégories"
 url = "/categories/"
 weight = 2
 
 [[menu.main]]
-name = "Magasins"
+name = "🏪 Magasins"
 url = "/stores/"
 weight = 3
 
