@@ -1,0 +1,62 @@
+baseURL = "https://vocal-otter-ada351.netlify.app/"
+title = "Flash Deals Pro"
+theme = "PaperMod"
+defaultContentLanguage = "fr"
+enableRobotsTXT = true
+
+# Nouvelle syntaxe pour la pagination
+[pagination]
+pagerSize = 10
+
+[params]
+defaultTheme = "light"
+disableThemeToggle = false
+ShowReadingTime = true
+ShowShareButtons = true
+ShowPostNavLinks = true
+ShowBreadCrumbs = true
+ShowCodeCopyButtons = true
+ShowToc = true
+images = ["images/logo.png"]
+
+description = "Les meilleures offres et codes promo du web"
+keywords = ["bons plans", "codes promo", "réductions", "deals"]
+author = "Flash Deals Pro"
+
+# Page d'accueil
+[params.profileMode]
+enabled = true
+title = "Flash Deals Pro 🔥"
+subtitle = "Les meilleures offres et codes promo du web, actualisées quotidiennement"
+imageUrl = ""
+imageTitle = ""
+
+[[params.profileMode.buttons]]
+name = "🛍️ Voir les Deals"
+url = "/deals/"
+
+[[params.profileMode.buttons]]
+name = "💻 High-Tech"
+url = "/categories/high-tech/"
+
+# Menu
+[[menu.main]]
+name = "Deals"
+url = "/deals/"
+weight = 1
+
+[[menu.main]]
+name = "Catégories"
+url = "/categories/"
+weight = 2
+
+[[menu.main]]
+name = "Magasins"
+url = "/stores/"
+weight = 3
+
+# Taxonomies
+[taxonomies]
+category = "categories"
+tag = "tags"
+store = "stores"

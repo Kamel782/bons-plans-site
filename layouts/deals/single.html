@@ -1,0 +1,52 @@
+{{- define "main" }}
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">{{ .Title }}</h1>
+    <div class="post-meta">
+      {{- if .Params.discount }}
+      <span style="background: #ff4444; color: white; padding: 4px 12px; border-radius: 4px; font-weight: bold;">
+        -{{ .Params.discount }}%
+      </span>
+      {{- end }}
+      {{- if .Params.newPrice }}
+      <span style="font-size: 1.5em; color: #ff4444; font-weight: bold; margin: 0 10px;">
+        {{ .Params.newPrice }}€
+      </span>
+      {{- end }}
+      {{- if .Params.oldPrice }}
+      <span style="text-decoration: line-through; color: #999;">
+        {{ .Params.oldPrice }}€
+      </span>
+      {{- end }}
+    </div>
+  </header>
+  
+  {{- if .Params.image }}
+  <img src="{{ .Params.image }}" alt="{{ .Title }}" style="max-width: 100%; margin: 20px 0;">
+  {{- end }}
+  
+  <div class="post-content">
+    {{- .Content }}
+  </div>
+  
+  {{- if .Params.affiliateUrl }}
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="{{ .Params.affiliateUrl }}" 
+       target="_blank" 
+       rel="nofollow noopener"
+       style="background: #ff4444; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; display: inline-block; font-size: 1.2em;">
+      Voir l'offre →
+    </a>
+  </div>
+  {{- end }}
+  
+  {{- if .Params.couponCode }}
+  <div style="background: #f5f5f5; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;">
+    <p>Code promo :</p>
+    <code style="font-size: 1.5em; background: white; padding: 10px 20px; border: 2px dashed #ff4444;">
+      {{ .Params.couponCode }}
+    </code>
+  </div>
+  {{- end }}
+</article>
+{{- end }}

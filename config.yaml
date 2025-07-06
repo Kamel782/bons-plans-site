@@ -1,0 +1,21 @@
+baseURL: "/"
+title: "Flash Deals Pro"
+theme: "hugo-theme-bootstrap"
+defaultContentLanguage: "fr"
+enableRobotsTXT: true
+
+params:
+  brand: "Flash Deals Pro"
+  description: "Les meilleures offres et codes promo du web"
+  keywords: ["bons plans", "codes promo", "réductions"]
+  
+  palette: "blue"
+  
+menu:
+  main:
+    - name: "Accueil"
+      url: "/"
+      weight: 1
+    - name: "Deals"
+      url: "/deals/"
+      weight: 2
