@@ -1,5 +1,3 @@
-const { Octokit } = require("@octokit/rest");
-
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -51,7 +49,7 @@ exports.handler = async (event, context) => {
       .replace(/-+/g, '-')
       .substring(0, 50);
 
-    // Contenu avec date d'expiration
+    // Contenu avec date d'expiration et style amélioré
     const content = `---
 title: "${data.title.replace(/"/g, '\\"')}"
 date: ${date}T${now.toTimeString().split(' ')[0]}
@@ -72,15 +70,32 @@ daysValid: ${daysToExpire}
 
 ${data.description || 'Offre spéciale limitée !'}
 
-**Prix normal** : ${data.oldPrice || Math.round(data.newPrice * 1.3)}€  
-**Prix promo** : ${data.newPrice}€  
-**Économie** : ${data.discount || Math.round((1 - data.newPrice/(data.oldPrice || data.newPrice * 1.3)) * 100)}%
+---
 
-${data.couponCode ? `### Code promo : \`${data.couponCode}\`` : ''}
+## 💰 Détails de l'offre
+
+**Prix normal** : ~~${data.oldPrice || Math.round(data.newPrice * 1.3)}€~~  
+**Prix promo** : **${data.newPrice}€**  
+**Économie** : **${data.discount || Math.round((1 - data.newPrice/(data.oldPrice || data.newPrice * 1.3)) * 100)}%** (${Math.round((data.oldPrice || data.newPrice * 1.3) - data.newPrice)}€)
+
+${data.couponCode ? `### 🎫 Code promo : \`${data.couponCode}\`` : ''}
 
 ⏰ **Offre valable jusqu'au ${expiryDateString}**
 
-[Voir l'offre ➡️](${data.affiliateUrl || '#'})
+---
+
+<div style="text-align: center; margin: 30px 0;">
+  <a href="${data.affiliateUrl || '#'}" 
+     target="_blank" 
+     rel="nofollow noopener"
+     style="background: linear-gradient(45deg, #ff6b6b, #ff8e8e); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; display: inline-block; font-size: 1.2em; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.3s ease;">
+    🛒 PROFITER DE L'OFFRE
+  </a>
+</div>
+
+---
+
+⚠️ **Attention** : Les prix peuvent changer à tout moment. Vérifiez le prix final avant l'achat.
 `;
 
     if (!process.env.GITHUB_TOKEN) {
@@ -98,7 +113,7 @@ ${data.couponCode ? `### Code promo : \`${data.couponCode}\`` : ''}
         'User-Agent': 'netlify-function'
       },
       body: JSON.stringify({
-        message: `Add deal: ${data.title} (expires: ${expiryDateString})`,
+        message: `Add super deal: ${data.title} (expires: ${expiryDateString})`,
         content: Buffer.from(content).toString('base64'),
         branch: 'main'
       })
@@ -116,7 +131,7 @@ ${data.couponCode ? `### Code promo : \`${data.couponCode}\`` : ''}
       headers,
       body: JSON.stringify({ 
         success: true, 
-        message: 'Deal créé avec succès',
+        message: 'Super deal créé avec succès',
         filename: filename,
         slug: slug,
         expiryDate: expiryDateString,
