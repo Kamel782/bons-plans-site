@@ -1,14 +1,12 @@
 const { Octokit } = require("@octokit/rest");
 
 exports.handler = async (event, context) => {
-  // Headers CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS'
   };
 
-  // Gérer preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
@@ -24,9 +22,6 @@ exports.handler = async (event, context) => {
   try {
     const data = JSON.parse(event.body || '{}');
     
-    console.log('Received deal data:', data);
-    
-    // Validation des champs requis
     if (!data.title || !data.newPrice) {
       return {
         statusCode: 400,
@@ -38,22 +33,31 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Générer le slug pour le fichier
-    const date = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const date = now.toISOString().split('T')[0];
+    
+    // Calcul de la date d'expiration (par défaut 7 jours)
+    const daysToExpire = data.daysToExpire || 7;
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + daysToExpire);
+    const expiryDateString = expiryDate.toISOString().split('T')[0];
+
     const slug = data.title
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
-      .replace(/[^\w\s-]/g, '') // Enlever caractères spéciaux
-      .replace(/\s+/g, '-') // Remplacer espaces par tirets
-      .replace(/-+/g, '-') // Éviter tirets multiples
-      .substring(0, 50); // Limiter la longueur
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 50);
 
-    // Créer le contenu du fichier Markdown
+    // Contenu avec date d'expiration
     const content = `---
 title: "${data.title.replace(/"/g, '\\"')}"
-date: ${date}T${new Date().toTimeString().split(' ')[0]}
+date: ${date}T${now.toTimeString().split(' ')[0]}
+expiryDate: ${expiryDateString}T23:59:59
 draft: false
+expired: false
 categories: ["${data.category || 'general'}"]
 stores: ["${data.store || 'general'}"]
 tags: ["promo", "deal", "${data.category || 'general'}"]
@@ -63,6 +67,7 @@ discount: ${data.discount || Math.round((1 - data.newPrice/(data.oldPrice || dat
 affiliateUrl: "${data.affiliateUrl || '#'}"
 couponCode: "${data.couponCode || ''}"
 image: "${data.image || '/images/placeholder.jpg'}"
+daysValid: ${daysToExpire}
 ---
 
 ${data.description || 'Offre spéciale limitée !'}
@@ -73,34 +78,38 @@ ${data.description || 'Offre spéciale limitée !'}
 
 ${data.couponCode ? `### Code promo : \`${data.couponCode}\`` : ''}
 
+⏰ **Offre valable jusqu'au ${expiryDateString}**
+
 [Voir l'offre ➡️](${data.affiliateUrl || '#'})
 `;
 
-    // Utiliser l'API GitHub pour créer le fichier
     if (!process.env.GITHUB_TOKEN) {
       throw new Error('GITHUB_TOKEN non configuré');
     }
 
-    const octokit = new Octokit({
-      auth: process.env.GITHUB_TOKEN
-    });
-
     const filename = `${date}-${slug}.md`;
     const filepath = `content/deals/${filename}`;
 
-    console.log('Creating file:', filepath);
-
-    // Créer le fichier dans le repository
-    await octokit.repos.createOrUpdateFileContents({
-      owner: 'Kamel782', // Remplacez par votre username si différent
-      repo: 'bons-plans-site',
-      path: filepath,
-      message: `Add deal: ${data.title}`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'main'
+    const response = await fetch(`https://api.github.com/repos/Kamel782/bons-plans-site/contents/${filepath}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'netlify-function'
+      },
+      body: JSON.stringify({
+        message: `Add deal: ${data.title} (expires: ${expiryDateString})`,
+        content: Buffer.from(content).toString('base64'),
+        branch: 'main'
+      })
     });
 
-    console.log('File created successfully:', filename);
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`GitHub API error: ${response.status} - ${errorData}`);
+    }
+
+    const result = await response.json();
 
     return {
       statusCode: 200,
@@ -110,6 +119,7 @@ ${data.couponCode ? `### Code promo : \`${data.couponCode}\`` : ''}
         message: 'Deal créé avec succès',
         filename: filename,
         slug: slug,
+        expiryDate: expiryDateString,
         url: `https://flashdeal.netlify.app/deals/${date}-${slug}/`
       })
     };
@@ -121,8 +131,7 @@ ${data.couponCode ? `### Code promo : \`${data.couponCode}\`` : ''}
       headers,
       body: JSON.stringify({ 
         success: false,
-        error: error.message,
-        details: error.toString()
+        error: error.message
       })
     };
   }

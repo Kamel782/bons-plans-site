@@ -1,0 +1,120 @@
+{{ define "main" }}
+<div class="deals-list">
+  <h1>{{ .Title }}</h1>
+  
+  {{ $currentDate := now.Format "2006-01-02" }}
+  {{ $validDeals := slice }}
+  
+  {{ range .Pages }}
+    {{ $expiryDate := .Params.expiryDate }}
+    {{ if $expiryDate }}
+      {{ $expiryDateStr := (time $expiryDate).Format "2006-01-02" }}
+      {{ if ge $expiryDateStr $currentDate }}
+        {{ $validDeals = $validDeals | append . }}
+      {{ end }}
+    {{ else }}
+      <!-- Si pas de date d'expiration, afficher quand même -->
+      {{ $validDeals = $validDeals | append . }}
+    {{ end }}
+  {{ end }}
+  
+  {{ if eq (len $validDeals) 0 }}
+    <p>Aucun deal valide pour le moment. Revenez bientôt !</p>
+  {{ else }}
+    {{ range $validDeals }}
+      <article class="deal-card">
+        <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+        
+        <div class="deal-meta">
+          {{ if .Params.discount }}
+          <span class="discount">-{{ .Params.discount }}%</span>
+          {{ end }}
+          
+          {{ if .Params.newPrice }}
+          <span class="price-new">{{ .Params.newPrice }}€</span>
+          {{ end }}
+          
+          {{ if .Params.oldPrice }}
+          <span class="price-old">{{ .Params.oldPrice }}€</span>
+          {{ end }}
+        </div>
+        
+        {{ if .Params.expiryDate }}
+        <div class="expiry-info">
+          {{ $expiryDate := (time .Params.expiryDate) }}
+          {{ $daysLeft := div (sub $expiryDate.Unix now.Unix) 86400 }}
+          {{ if le $daysLeft 1 }}
+            <span class="urgent">⚡ Expire bientôt !</span>
+          {{ else if le $daysLeft 3 }}
+            <span class="warning">⏰ Plus que {{ $daysLeft }} jours</span>
+          {{ else }}
+            <span class="normal">📅 Valable {{ $daysLeft }} jours</span>
+          {{ end }}
+        </div>
+        {{ end }}
+        
+        <div class="deal-excerpt">
+          {{ .Summary }}
+        </div>
+        
+        <div class="deal-store">
+          {{ if .Params.stores }}
+            {{ range .Params.stores }}
+              <span class="store-badge">{{ . }}</span>
+            {{ end }}
+          {{ end }}
+        </div>
+      </article>
+    {{ end }}
+  {{ end }}
+</div>
+
+<style>
+.deal-card {
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+}
+
+.deal-meta {
+  margin: 10px 0;
+}
+
+.discount {
+  background: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.price-new {
+  font-size: 1.2em;
+  color: #ff4444;
+  font-weight: bold;
+  margin: 0 10px;
+}
+
+.price-old {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.expiry-info {
+  margin: 10px 0;
+}
+
+.urgent { color: #ff0000; font-weight: bold; }
+.warning { color: #ff8800; }
+.normal { color: #666; }
+
+.store-badge {
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  margin-right: 5px;
+}
+</style>
+{{ end }}
