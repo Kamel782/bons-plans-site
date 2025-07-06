@@ -20,6 +20,7 @@ exports.handler = async (event, context) => {
     const today = new Date().toISOString().split('T')[0];
     let expiredCount = 0;
     let processedFiles = [];
+    let keptFiles = [];
 
     for (const file of files) {
       if (file.name.endsWith('.md')) {
@@ -35,7 +36,7 @@ exports.handler = async (event, context) => {
           
           // Vérifier si le deal est expiré
           if (expiryDate < today) {
-            // Option 1: Supprimer le fichier
+            // Supprimer le fichier expiré
             await fetch(`https://api.github.com/repos/Kamel782/bons-plans-site/contents/${file.path}`, {
               method: 'DELETE',
               headers: {
@@ -44,15 +45,32 @@ exports.handler = async (event, context) => {
                 'User-Agent': 'netlify-function'
               },
               body: JSON.stringify({
-                message: `Remove expired deal: ${file.name}`,
+                message: `Auto-cleanup: Remove expired deal ${file.name}`,
                 sha: file.sha,
                 branch: 'main'
               })
             });
             
             expiredCount++;
-            processedFiles.push(file.name);
+            processedFiles.push({
+              name: file.name,
+              expiryDate: expiryDate,
+              action: 'deleted'
+            });
+          } else {
+            keptFiles.push({
+              name: file.name,
+              expiryDate: expiryDate,
+              daysLeft: Math.ceil((new Date(expiryDate) - new Date(today)) / (1000 * 60 * 60 * 24))
+            });
           }
+        } else {
+          // Fichier sans date d'expiration - on le garde
+          keptFiles.push({
+            name: file.name,
+            expiryDate: 'no-expiry',
+            daysLeft: 'permanent'
+          });
         }
       }
     }
@@ -62,9 +80,15 @@ exports.handler = async (event, context) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: true,
-        message: `${expiredCount} deals expirés supprimés`,
-        removedFiles: processedFiles,
-        totalProcessed: files.length
+        message: `Nettoyage automatique terminé`,
+        statistics: {
+          totalFiles: files.length,
+          expiredDeleted: expiredCount,
+          activeDeals: keptFiles.length,
+          cleanupDate: today
+        },
+        expiredDeals: processedFiles,
+        activeDeals: keptFiles.slice(0, 10) // Limiter à 10 pour éviter trop de données
       })
     };
 
@@ -75,7 +99,8 @@ exports.handler = async (event, context) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         success: false,
-        error: error.message
+        error: error.message,
+        timestamp: new Date().toISOString()
       })
     };
   }
