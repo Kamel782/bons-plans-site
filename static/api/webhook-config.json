@@ -1,0 +1,15 @@
+{
+  "webhook_url": "https://vocal-otter-ada351.netlify.app/api/create-deal",
+  "api_format": {
+    "title": "string",
+    "category": "string",
+    "store": "string",
+    "oldPrice": "number",
+    "newPrice": "number",
+    "discount": "number",
+    "affiliateUrl": "string",
+    "couponCode": "string",
+    "image": "string",
+    "description": "string"
+  }
+}
