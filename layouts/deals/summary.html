@@ -1,25 +1,35 @@
 <article class="deal-card">
-  <div class="deal-header">
-    {{ if .Params.discount }}
-      <span class="discount-badge">-{{ .Params.discount }}%</span>
+  <div class="deal-image-container">
+    {{ if .Params.image }}
+      <img src="{{ .Params.image }}" alt="{{ .Title }}" class="deal-image">
+    {{ else }}
+      <div class="deal-image-placeholder">
+        <span class="placeholder-icon">📦</span>
+      </div>
     {{ end }}
-    {{ if le (time .Params.expiryDate).Unix now.Unix }}
-      <span class="expired-badge">Expiré</span>
-    {{ else if .Params.daysValid }}
-      <span class="days-left">{{ .Params.daysValid }} jours</span>
-    {{ end }}
+    
+    <div class="deal-badges">
+      {{ if .Params.discount }}
+        <span class="discount-badge">-{{ .Params.discount }}%</span>
+      {{ end }}
+      {{ if le (time .Params.expiryDate).Unix now.Unix }}
+        <span class="expired-badge">Expiré</span>
+      {{ else if .Params.daysValid }}
+        <span class="days-left">{{ .Params.daysValid }} jours</span>
+      {{ end }}
+    </div>
   </div>
   
   <div class="deal-content">
-    <h3 class="deal-title">
-      <a href="{{ .Permalink }}">{{ .Title | safeHTML }}</a>
-    </h3>
-    
     <div class="deal-meta">
       {{ range .Params.stores }}
         <span class="store-tag">{{ . }}</span>
       {{ end }}
     </div>
+    
+    <h3 class="deal-title">
+      <a href="{{ .Permalink }}">{{ .Title | safeHTML }}</a>
+    </h3>
     
     <div class="deal-prices">
       {{ if .Params.oldPrice }}
@@ -29,7 +39,7 @@
     </div>
     
     <div class="deal-summary">
-      {{ .Summary | truncate 100 "..." }}
+      {{ .Summary | truncate 80 "..." }}
     </div>
     
     <a href="{{ .Permalink }}" class="deal-button">Voir le deal →</a>
